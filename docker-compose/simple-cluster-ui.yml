@@ -1,0 +1,98 @@
+services:
+  kafka-1:
+    image: apache/kafka:latest
+    hostname: kafka1
+    ports:
+      - "19092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://kafka1:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:19092,DOCKER://kafka1:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9091,2@kafka2:9091,3@kafka3:9091' 
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka1 -Dcom.sun.management.jmxremote.rmi.port=9997
+  kafka-2:
+    image: apache/kafka:latest
+    hostname: kafka2
+    ports:
+      - "29092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://kafka2:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:29092,DOCKER://kafka2:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9091,2@kafka2:9091,3@kafka3:9091' 
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9998
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka2 -Dcom.sun.management.jmxremote.rmi.port=9998
+  kafka-3:
+    image: apache/kafka:latest
+    hostname: kafka3
+    ports:
+      - "39092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://kafka3:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:39092,DOCKER://kafka3:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9091,2@kafka2:9091,3@kafka3:9091' 
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka3 -Dcom.sun.management.jmxremote.rmi.port=9999
+  kafbat-ui:
+    container_name: kafbat-ui
+    image: ghcr.io/kafbat/kafka-ui:latest
+    ports:
+      - 18080:8080
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    environment:
+      KAFKA_CLUSTERS_0_NAME: kafka1
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9093
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      KAFKA_CLUSTERS_1_NAME: kafka2
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: kafka2:9093
+      KAFKA_CLUSTERS_1_METRICS_PORT: 9998
+      KAFKA_CLUSTERS_2_NAME: kafka3
+      KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS: kafka3:9093
+      KAFKA_CLUSTERS_2_METRICS_PORT: 9999
+      KAFKA_CLUSTERS_0_METRICS_STORE_PROMETHEUS_URL: "http://prometheus:9090"
+      KAFKA_CLUSTERS_0_METRICS_STORE_PROMETHEUS_REMOTEWRITE: 'true'
+      KAFKA_CLUSTERS_0_METRICS_STORE_KAFKA_TOPIC: "kafka_metrics"
+      DYNAMIC_CONFIG_ENABLED: 'true'
+  prometheus:
+    image: prom/prometheus:latest
+    hostname: prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./scripts:/etc/prometheus
+    command: --web.enable-remote-write-receiver  --config.file=/etc/prometheus/prometheus.yaml
+
+#...
