@@ -1,6 +1,6 @@
 services:
   kafka-1:
-    image: apache/kafka:latest
+    image: apache/kafka:4.1.1
     hostname: kafka1
     ports:
       - "19092:9092"
@@ -21,7 +21,7 @@ services:
       KAFKA_JMX_PORT: 9997
       KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka1 -Dcom.sun.management.jmxremote.rmi.port=9997
   kafka-2:
-    image: apache/kafka:latest
+    image: apache/kafka:4.1.1
     hostname: kafka2
     ports:
       - "29092:9092"
@@ -39,10 +39,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       # Required for a single node cluster
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9998
-      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka2 -Dcom.sun.management.jmxremote.rmi.port=9998
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka2 -Dcom.sun.management.jmxremote.rmi.port=9997
   kafka-3:
-    image: apache/kafka:latest
+    image: apache/kafka:4.1.1
     hostname: kafka3
     ports:
       - "39092:9092"
@@ -60,8 +60,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       # Required for a single node cluster
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka3 -Dcom.sun.management.jmxremote.rmi.port=9999
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka3 -Dcom.sun.management.jmxremote.rmi.port=9997
   kafbat-ui:
     container_name: kafbat-ui
     image: ghcr.io/kafbat/kafka-ui:latest
@@ -72,15 +72,9 @@ services:
       - kafka-2
       - kafka-3
     environment:
-      KAFKA_CLUSTERS_0_NAME: kafka1
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9093
+      KAFKA_CLUSTERS_0_NAME: MyKafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9093,kafka2:9093,kafka3:9093
       KAFKA_CLUSTERS_0_METRICS_PORT: 9997
-      KAFKA_CLUSTERS_1_NAME: kafka2
-      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: kafka2:9093
-      KAFKA_CLUSTERS_1_METRICS_PORT: 9998
-      KAFKA_CLUSTERS_2_NAME: kafka3
-      KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS: kafka3:9093
-      KAFKA_CLUSTERS_2_METRICS_PORT: 9999
       KAFKA_CLUSTERS_0_METRICS_STORE_PROMETHEUS_URL: "http://prometheus:9090"
       KAFKA_CLUSTERS_0_METRICS_STORE_PROMETHEUS_REMOTEWRITE: 'true'
       KAFKA_CLUSTERS_0_METRICS_STORE_KAFKA_TOPIC: "kafka_metrics"
