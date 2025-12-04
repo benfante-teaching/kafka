@@ -16,6 +16,7 @@ public class HelloConsumer {
     public static void main(String[] args) {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:19092,localhost:29092,localhost:39092");
+        props.put("client.id", "my-hello-consumer");
         props.put("group.id", "my-group");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
