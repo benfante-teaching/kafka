@@ -19,10 +19,7 @@ public class HelloProducer {
     }
 
     public static void send(String topic, String key, String value) {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:19092,localhost:29092,localhost:39092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        Properties props = getProps();
 
         try (Producer<String, String> producer = new KafkaProducer<>(props)) {
             ProducerRecord<String, String> record =
@@ -33,10 +30,7 @@ public class HelloProducer {
     }
 
     public static void sendSync(String topic, String key, String value) throws InterruptedException, ExecutionException {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:19092,localhost:29092,localhost:39092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        Properties props = getProps();
 
         try (Producer<String, String> producer = new KafkaProducer<>(props)) {
             ProducerRecord<String, String> record =
@@ -48,11 +42,16 @@ public class HelloProducer {
         }
     }
 
-    public static void sendASync(String topic, String key, String value) {
+    private static Properties getProps() {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:19092,localhost:29092,localhost:39092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        return props;
+    }
+
+    public static void sendASync(String topic, String key, String value) {
+        Properties props = getProps();
 
         try (Producer<String, String> producer = new KafkaProducer<>(props)) {
             ProducerRecord<String, String> record =
