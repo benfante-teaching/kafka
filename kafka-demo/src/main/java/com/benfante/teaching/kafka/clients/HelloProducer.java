@@ -19,7 +19,7 @@ public class HelloProducer {
     private static final Logger log = LoggerFactory.getLogger(HelloProducer.class);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        sendASync("course_helloworld", "anotherkey1", "Hello, Kafka! " + LocalDateTime.now());
+        sendASync("course_helloworld", "anotherkey1", "{\"message\": \"Hello, Kafka!\"}");
     }
 
     public static void send(String topic, String key, String value) {
